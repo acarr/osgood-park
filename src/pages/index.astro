@@ -1,21 +1,102 @@
 ---
-import "../styles/global.css";
-import { Button } from "@/components/ui/button";
+import Layout from "@/layouts/Layout.astro";
+import { Hero157 } from "@/components/hero157";
+import { About3 } from "@/components/about3";
+import { Feature6 } from "@/components/feature6";
+import { Footer60 } from "@/components/footer60";
+import TideWaterSection from "@/components/sections/TideWaterSection";
+import DocumentsSection from "@/components/sections/DocumentsSection.astro";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Osgood Park</title>
-	</head>
-	<body class="bg-background text-foreground">
-		<main class="flex min-h-screen flex-col items-center justify-center gap-6">
-			<h1 class="text-4xl font-semibold tracking-tight">Osgood Park</h1>
-			<Button size="lg">Get Started</Button>
-		</main>
-	</body>
-</html>
+<Layout>
+  <main>
+    <Hero157 />
+
+    <div id="about">
+      <About3
+        title="About the Association"
+        description="The Osgood-Park Neighborhood Association brings together the households around the park and the Salem Sound waterfront. We organize cleanups and events, share what's happening nearby, and keep an eye on the things that make this a good place to live."
+        companies={null}
+        breakout={{
+          title: "Get involved",
+          description:
+            "Membership is open to everyone in the neighborhood. Lend a hand at a cleanup, join a meeting, or just say hello.",
+          buttonText: "Become a member",
+          buttonUrl: "#forms",
+        }}
+        achievementsTitle="Our neighborhood at a glance"
+        achievementsDescription="A few of the things that bring us together each year."
+        achievements={[
+          { label: "Established", value: "1998" },
+          { label: "Households", value: "200+" },
+          { label: "Events a year", value: "12" },
+          { label: "Park cleanups", value: "4" },
+        ]}
+        contentSections={[
+          {
+            title: "Our Mission",
+            content:
+              "We exist to make our neighborhood a little better, together — keeping the park welcoming, the waterfront healthy, and neighbors connected.\n\nThat means everything from organizing seasonal cleanups to sharing tide and water-safety information so everyone can enjoy the shoreline safely.",
+          },
+          {
+            title: "Get Involved",
+            content:
+              "There's no wrong way to pitch in. Come to a meeting, help at a cleanup, or download a membership form below.\n\nNew neighbors are always welcome — introduce yourself and we'll get you plugged in.",
+          },
+        ]}
+      />
+    </div>
+
+    <div id="park">
+      <Feature6
+        heading="About Osgood Park"
+        description="Osgood Park sits right on Salem Sound, a short walk from downtown. It's the heart of the neighborhood — green space to gather, shoreline to explore, and a front-row seat to the tides."
+        image={{ src: "/images/hero.jpg", alt: "Osgood Park on Salem Sound" }}
+        features={[
+          { title: "Waterfront access on Salem Sound" },
+          { title: "Open green space and walking paths" },
+          { title: "A gathering place for neighborhood events" },
+          { title: "Steps from historic downtown Salem" },
+        ]}
+      />
+    </div>
+
+    <section id="tides" class="border-t border-border py-24 md:py-32">
+      <div class="container mx-auto px-6">
+        <div class="mb-12 max-w-2xl">
+          <h2 class="text-3xl font-semibold tracking-tight md:text-4xl">
+            Tides &amp; Water Safety
+          </h2>
+          <p class="mt-4 text-muted-foreground md:text-lg">
+            Today's tide schedule for Salem Harbor and the latest water-quality
+            reading for Salem Sound.
+          </p>
+        </div>
+        <TideWaterSection client:load />
+      </div>
+    </section>
+
+    <DocumentsSection />
+
+    <Footer60
+      logo={{
+        url: "#",
+        src: "",
+        alt: "",
+        title: "Osgood-Park Neighborhood Association",
+      }}
+      sections={[
+        {
+          title: "Menu",
+          links: [
+            { name: "About", href: "#about" },
+            { name: "The Park", href: "#park" },
+            { name: "Tides & Water", href: "#tides" },
+            { name: "Forms", href: "#forms" },
+          ],
+        },
+      ]}
+      socialLinks={[]}
+    />
+  </main>
+</Layout>

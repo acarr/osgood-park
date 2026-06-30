@@ -1,0 +1,78 @@
+---
+import { documents } from "@/data/documents";
+---
+
+<section id="forms" class="border-t border-border py-24 md:py-32">
+  <div class="container mx-auto px-6">
+    <div class="mb-12 max-w-2xl">
+      <h2 class="text-3xl font-semibold tracking-tight md:text-4xl">
+        Forms &amp; Documents
+      </h2>
+      <p class="mt-4 text-muted-foreground md:text-lg">
+        Download the forms and documents neighbors need most. More will be added
+        over time.
+      </p>
+    </div>
+
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        documents.map((doc) => (
+          <a
+            href={doc.href}
+            download
+            class="group flex flex-col rounded-xl bg-card p-6 ring-1 ring-foreground/10 transition-colors hover:bg-muted/50"
+          >
+            <div class="mb-4 flex items-center justify-between">
+              <span class="flex size-10 items-center justify-center rounded-lg bg-muted text-foreground">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                  <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                  <path d="M10 9H8" />
+                  <path d="M16 13H8" />
+                  <path d="M16 17H8" />
+                </svg>
+              </span>
+              <span class="text-xs font-medium text-muted-foreground">
+                {doc.fileType}
+              </span>
+            </div>
+            <h3 class="font-medium">{doc.title}</h3>
+            <p class="mt-2 flex-1 text-sm text-muted-foreground">
+              {doc.description}
+            </p>
+            <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-foreground group-hover:underline">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" x2="12" y1="15" y2="3" />
+              </svg>
+              Download
+            </span>
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
