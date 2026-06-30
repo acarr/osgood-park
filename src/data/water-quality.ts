@@ -1,70 +1,73 @@
-// Water-safety data for the Tide & Water Safety section.
+// Water-safety data for the Tide & Water Safety section, focused on our beach:
+// Osgood, in Salem.
 //
-// Source: Massachusetts DPH Beach Water Quality dashboard (a Tableau view that
-// exposes a CSV download but no clean public API). Marine beaches are tested for
-// Enterococci; the state single-sample threshold is 104 cfu/100 mL — at or below
-// is acceptable, above triggers an advisory.
+// Source: Massachusetts DPH "Beach Water Quality Dashboard" (Tableau). Marine
+// beaches are tested for Enterococci; the state single-sample standard is
+// 104 cfu/100 mL — at or below is within the standard, above is an exceedance.
+// Separately, DPH publishes a list of currently-closed beaches with a reason.
 //
-// Until the periodic live fetch is wired up (see src/pages/api/water.json.ts),
-// the endpoint serves the last-known reading below. Update `fallbackReading`
-// when you have a newer measurement, or replace it entirely once the automated
-// fetch lands.
+// The live fetch lives in src/lib/water-quality-source.ts. When it can't reach
+// the dashboard, the API serves `fallbackReading` below so the section never
+// errors — update it if you have a newer reading on hand.
 
-export type WaterStatus = "safe" | "advisory" | "unknown";
+export type WaterStatus = "open" | "closed" | "unknown";
+
+export interface WaterSample {
+  /** ISO date (YYYY-MM-DD). */
+  date: string;
+  /** Enterococci result, cfu/100 mL. */
+  result: number;
+}
 
 export interface WaterReading {
-  /** Beach or waterbody the sample was taken from. */
   beach: string;
-  /** Town / general area. */
-  area: string;
-  /** Enterococci result, in cfu/100 mL. */
-  value: number;
+  town: string;
   unit: string;
-  /** State single-sample marine threshold (cfu/100 mL). */
+  /** State single-sample marine standard (cfu/100 mL). */
   threshold: number;
+  /** Most recent sample, or null if none found. */
+  latest: WaterSample | null;
+  /** Recent samples, most-recent first. */
+  history: WaterSample[];
+  /** Whether the latest result is at or below the standard (null if no reading). */
+  withinStandard: boolean | null;
+  /** Closure status from the DPH closures list. */
   status: WaterStatus;
-  /** ISO date (YYYY-MM-DD) the sample was collected. */
-  sampledOn: string;
-  /** Where the figure came from: "fallback" (seeded) or "madph" (live). */
+  /** Reason text when closed (e.g. "Bacterial Exceedance"), else null. */
+  closureReason: string | null;
+  /** Where the data came from: "fallback" (seeded) or "madph" (live). */
   source: "fallback" | "madph";
   /** Public dashboard to link out to. */
   dashboardUrl: string;
-
-  // Optional summary fields, present when the live MA DPH data is available.
-  /** Number of Salem beaches with a recent reading. */
-  beachesTested?: number;
-  /** How many of those met the single-sample standard. */
-  beachesPassing?: number;
-  /** Beach with the highest (worst) recent reading — the one `value` refers to. */
-  highestBeach?: string;
 }
+
+export const BEACH_NAME = "Osgood";
+export const TOWN = "Salem";
+
+export const MARINE_SINGLE_SAMPLE_THRESHOLD = 104;
 
 export const MA_DPH_DASHBOARD_URL =
   "https://www.mass.gov/info-details/interactive-beach-water-quality-dashboard";
 
-/** Reference URL for the underlying Tableau results table (CSV download lives here). */
+/** Reference URL for the underlying Tableau results table. */
 export const MA_DPH_RESULTS_TABLE_URL =
   "https://datavisualization.dph.mass.gov/views/BeachWaterQualityDashboard/ResultsTable";
 
-export const MARINE_SINGLE_SAMPLE_THRESHOLD = 104;
-
-export function statusForValue(value: number, threshold = MARINE_SINGLE_SAMPLE_THRESHOLD): WaterStatus {
-  if (!Number.isFinite(value)) return "unknown";
-  return value <= threshold ? "safe" : "advisory";
-}
-
-/**
- * Last-known reading for Salem Sound. Placeholder values — replace with a real
- * recent measurement, or let the automated fetch overwrite this at request time.
- */
+/** Last-known reading for Osgood. Replace if the live fetch is unavailable. */
 export const fallbackReading: WaterReading = {
-  beach: "Salem Sound",
-  area: "Salem, MA",
-  value: 10,
+  beach: BEACH_NAME,
+  town: TOWN,
   unit: "cfu/100 mL",
   threshold: MARINE_SINGLE_SAMPLE_THRESHOLD,
-  status: "safe",
-  sampledOn: "2026-06-29",
+  latest: { date: "2026-06-22", result: 10 },
+  history: [
+    { date: "2026-06-22", result: 10 },
+    { date: "2026-06-15", result: 5 },
+    { date: "2026-06-08", result: 41 },
+  ],
+  withinStandard: true,
+  status: "open",
+  closureReason: null,
   source: "fallback",
   dashboardUrl: MA_DPH_DASHBOARD_URL,
 };

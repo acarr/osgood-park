@@ -33,19 +33,23 @@ interface TidesResponse {
   error?: string;
 }
 
+interface WaterSample {
+  date: string; // YYYY-MM-DD
+  result: number;
+}
+
 interface WaterReading {
   beach: string;
-  area: string;
-  value: number;
+  town: string;
   unit: string;
   threshold: number;
-  status: "safe" | "advisory" | "unknown";
-  sampledOn: string;
+  latest: WaterSample | null;
+  history: WaterSample[];
+  withinStandard: boolean | null;
+  status: "open" | "closed" | "unknown";
+  closureReason: string | null;
   source: "fallback" | "madph";
   dashboardUrl: string;
-  beachesTested?: number;
-  beachesPassing?: number;
-  highestBeach?: string;
 }
 
 type Load<T> = { state: "loading" } | { state: "ready"; data: T } | { state: "error" };
@@ -103,18 +107,18 @@ const STATUS: Record<
   WaterReading["status"],
   { label: string; badge: string; icon: typeof CircleCheck }
 > = {
-  safe: {
-    label: "Safe for swimming",
+  open: {
+    label: "Open",
     badge: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
     icon: CircleCheck,
   },
-  advisory: {
-    label: "Advisory in effect",
-    badge: "bg-amber-500/15 text-amber-700 dark:text-amber-500",
+  closed: {
+    label: "Closed",
+    badge: "bg-red-500/15 text-red-700 dark:text-red-400",
     icon: TriangleAlert,
   },
   unknown: {
-    label: "No recent reading",
+    label: "Status unconfirmed",
     badge: "bg-muted text-muted-foreground",
     icon: Droplets,
   },
@@ -266,7 +270,7 @@ function WaterCard() {
         </span>
         <div>
           <CardTitle>Water Safety</CardTitle>
-          <CardDescription>Salem Sound · MA Dept. of Public Health</CardDescription>
+          <CardDescription>Osgood Beach · Salem · MA Dept. of Public Health</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="flex-1">
@@ -285,65 +289,59 @@ function WaterCard() {
 
         {load.state === "ready" && reading && (
           <div className="space-y-4">
-            <Badge className={cn("gap-1.5 px-3 py-1 text-sm", status.badge)}>
-              <StatusIcon className="size-4!" />
-              {status.label}
-            </Badge>
+            <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+              <Badge className={cn("gap-1.5 px-3 py-1 text-sm", status.badge)}>
+                <StatusIcon className="size-4!" />
+                {status.label}
+              </Badge>
+              {reading.status === "closed" && reading.closureReason && (
+                <span className="text-sm text-muted-foreground">{reading.closureReason}</span>
+              )}
+            </div>
 
-            {reading.beachesTested != null ? (
-              <>
-                <div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-semibold tabular-nums">
-                      {reading.beachesPassing}
-                      <span className="text-muted-foreground">/{reading.beachesTested}</span>
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      beaches met the standard
-                    </span>
-                  </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Single-sample limit {reading.threshold} {reading.unit} · Enterococci
-                  </p>
+            {reading.latest ? (
+              <div>
+                <p className="text-xs tracking-wide text-muted-foreground uppercase">
+                  Most recent test
+                </p>
+                <div className="mt-1 flex items-baseline gap-2">
+                  <span className="text-3xl font-semibold tabular-nums">
+                    {reading.latest.result}
+                  </span>
+                  <span className="text-sm text-muted-foreground">{reading.unit}</span>
                 </div>
-                <dl className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <dt className="text-muted-foreground">Highest reading</dt>
-                    <dd className="tabular-nums">
-                      {reading.value} {reading.unit}
-                    </dd>
-                    {reading.highestBeach && (
-                      <dd className="text-muted-foreground">{reading.highestBeach}</dd>
-                    )}
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Most recent</dt>
-                    <dd>{formatSampledDate(reading.sampledOn)}</dd>
-                  </div>
-                </dl>
-              </>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {formatSampledDate(reading.latest.date)} · Enterococci ·{" "}
+                  {reading.withinStandard
+                    ? `within the ${reading.threshold} ${reading.unit} limit`
+                    : `above the ${reading.threshold} ${reading.unit} limit`}
+                </p>
+              </div>
             ) : (
-              <>
-                <div>
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-3xl font-semibold tabular-nums">{reading.value}</span>
-                    <span className="text-sm text-muted-foreground">{reading.unit}</span>
-                  </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Enterococci · state limit {reading.threshold} {reading.unit}
-                  </p>
-                </div>
-                <dl className="grid grid-cols-2 gap-2 text-sm">
-                  <div>
-                    <dt className="text-muted-foreground">Location</dt>
-                    <dd>{reading.beach}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Sampled</dt>
-                    <dd>{formatSampledDate(reading.sampledOn)}</dd>
-                  </div>
-                </dl>
-              </>
+              <p className="text-sm text-muted-foreground">
+                No recent readings for this beach.
+              </p>
+            )}
+
+            {reading.history.length > 1 && (
+              <div>
+                <p className="mb-1 text-xs tracking-wide text-muted-foreground uppercase">
+                  Recent tests
+                </p>
+                <ul className="divide-y divide-border">
+                  {reading.history.map((s) => (
+                    <li
+                      key={s.date}
+                      className="flex items-center justify-between py-1.5 text-sm"
+                    >
+                      <span>{formatSampledDate(s.date)}</span>
+                      <span className="tabular-nums">
+                        {s.result} <span className="text-muted-foreground">{reading.unit}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             )}
           </div>
         )}

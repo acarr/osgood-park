@@ -44,7 +44,7 @@ async function fetchPredictions(attempts = 3): Promise<NoaaPrediction[]> {
     try {
       const res = await fetch(noaaUrl, {
         headers: { "User-Agent": "osgood-park-neighborhood-association" },
-        signal: AbortSignal.timeout(5000),
+        signal: AbortSignal.timeout(3000),
       });
       if (!res.ok) throw new Error(`NOAA responded ${res.status}`);
       const data = (await res.json()) as {
