@@ -7,8 +7,10 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node scripts/generate-tides.mjs",
     "build": "astro build",
     "preview": "astro preview",
+    "generate:tides": "node scripts/generate-tides.mjs",
     "astro": "astro"
   },
   "dependencies": {
