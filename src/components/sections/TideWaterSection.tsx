@@ -43,6 +43,9 @@ interface WaterReading {
   sampledOn: string;
   source: "fallback" | "madph";
   dashboardUrl: string;
+  beachesTested?: number;
+  beachesPassing?: number;
+  highestBeach?: string;
 }
 
 type Load<T> = { state: "loading" } | { state: "ready"; data: T } | { state: "error" };
@@ -122,7 +125,7 @@ function TideCard() {
 
   useEffect(() => {
     let active = true;
-    fetch("/api/tides.json")
+    fetch("/api/tides.json", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data: TidesResponse) => {
         if (active) setLoad({ state: "ready", data });
@@ -237,7 +240,7 @@ function WaterCard() {
 
   useEffect(() => {
     let active = true;
-    fetch("/api/water.json")
+    fetch("/api/water.json", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((data: WaterReading) => {
         if (active) setLoad({ state: "ready", data });
@@ -286,25 +289,62 @@ function WaterCard() {
               <StatusIcon className="size-4!" />
               {status.label}
             </Badge>
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-semibold tabular-nums">{reading.value}</span>
-                <span className="text-sm text-muted-foreground">{reading.unit}</span>
-              </div>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Enterococci · state limit {reading.threshold} {reading.unit}
-              </p>
-            </div>
-            <dl className="grid grid-cols-2 gap-2 text-sm">
-              <div>
-                <dt className="text-muted-foreground">Location</dt>
-                <dd>{reading.beach}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Sampled</dt>
-                <dd>{formatSampledDate(reading.sampledOn)}</dd>
-              </div>
-            </dl>
+
+            {reading.beachesTested != null ? (
+              <>
+                <div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-semibold tabular-nums">
+                      {reading.beachesPassing}
+                      <span className="text-muted-foreground">/{reading.beachesTested}</span>
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      beaches met the standard
+                    </span>
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Single-sample limit {reading.threshold} {reading.unit} · Enterococci
+                  </p>
+                </div>
+                <dl className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <dt className="text-muted-foreground">Highest reading</dt>
+                    <dd className="tabular-nums">
+                      {reading.value} {reading.unit}
+                    </dd>
+                    {reading.highestBeach && (
+                      <dd className="text-muted-foreground">{reading.highestBeach}</dd>
+                    )}
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Most recent</dt>
+                    <dd>{formatSampledDate(reading.sampledOn)}</dd>
+                  </div>
+                </dl>
+              </>
+            ) : (
+              <>
+                <div>
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-3xl font-semibold tabular-nums">{reading.value}</span>
+                    <span className="text-sm text-muted-foreground">{reading.unit}</span>
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Enterococci · state limit {reading.threshold} {reading.unit}
+                  </p>
+                </div>
+                <dl className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <dt className="text-muted-foreground">Location</dt>
+                    <dd>{reading.beach}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-muted-foreground">Sampled</dt>
+                    <dd>{formatSampledDate(reading.sampledOn)}</dd>
+                  </div>
+                </dl>
+              </>
+            )}
           </div>
         )}
       </CardContent>

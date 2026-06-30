@@ -29,6 +29,14 @@ export interface WaterReading {
   source: "fallback" | "madph";
   /** Public dashboard to link out to. */
   dashboardUrl: string;
+
+  // Optional summary fields, present when the live MA DPH data is available.
+  /** Number of Salem beaches with a recent reading. */
+  beachesTested?: number;
+  /** How many of those met the single-sample standard. */
+  beachesPassing?: number;
+  /** Beach with the highest (worst) recent reading — the one `value` refers to. */
+  highestBeach?: string;
 }
 
 export const MA_DPH_DASHBOARD_URL =
