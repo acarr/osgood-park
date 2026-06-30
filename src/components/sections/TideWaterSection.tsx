@@ -30,6 +30,7 @@ interface TideEvent {
 interface TidesResponse {
   stationName: string;
   tides: TideEvent[];
+  source?: "noaa" | "fallback";
   error?: string;
 }
 
@@ -171,7 +172,15 @@ function TideCard() {
 
         {load.state === "ready" &&
           (() => {
-            const tides = load.data.tides ?? [];
+            // The API returns a multi-day window. Show today's tides, but compute
+            // the "next" tide across the whole window so it still points to
+            // tomorrow's first tide after the last one today has passed.
+            const allTides = load.data.tides ?? [];
+            const now = easternNowString();
+            const today = now.slice(0, 10);
+            const tides = allTides.filter((t) => t.time.slice(0, 10) === today);
+            const next = allTides.find((t) => t.time > now) ?? null;
+
             if (tides.length === 0) {
               return (
                 <p className="text-sm text-muted-foreground">
@@ -183,9 +192,6 @@ function TideCard() {
                 </p>
               );
             }
-            const now = easternNowString();
-            const nextIdx = tides.findIndex((t) => t.time > now);
-            const next = nextIdx >= 0 ? tides[nextIdx] : null;
 
             return (
               <div className="space-y-5">
