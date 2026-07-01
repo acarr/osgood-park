@@ -1,0 +1,75 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Home page text
+#
+# This file holds all the words on the home page. Change the text inside the
+# quotation marks and save — the website updates to match.
+#
+# Tips:
+#   • Keep the labels on the left (heading:, body:, etc.) exactly as they are.
+#   • Only change the text to the right of the colon, inside the quotes.
+#   • Keep the indentation (the leading spaces) the same.
+#   • If your text contains a colon ( : ), keep the quotes around it.
+# ─────────────────────────────────────────────────────────────────────────────
+
+home:
+  # Browser tab title and the description search engines show.
+  meta:
+    title: "Osgood-Park Neighborhood Association"
+    description: "The Osgood-Park Neighborhood Association — a community of neighbors in Salem, Massachusetts."
+
+  # The large banner at the top of the page.
+  hero:
+    eyebrow: "Salem, Massachusetts"
+    heading: "Welcome to the Osgood-Park Neighborhood Association"
+    body: "A community of neighbors looking after our shared corner of Salem Sound — its park, its waterfront, and each other."
+
+  # The "about us" section. The body can have multiple paragraphs — separate
+  # them with a blank line (see below).
+  about:
+    heading: "A few words about us"
+    body: |
+      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam a euismod nisi, vitae ultricies enim. Curabitur eu velit nec lorem tincidunt fermentum.
+
+      Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.
+    image:
+      src: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/placeholder-1.svg"
+      alt: "Placeholder"
+
+  # The "Tides & Water Safety" section header, plus the labels on the Tides card.
+  # The tide times themselves come from NOAA automatically and are not edited here.
+  tides:
+    heading: "Tides & Water Safety"
+    intro: "Today's tide schedule for Salem Harbor and the latest water-safety test for Osgood beach."
+    cardTitle: "Today's Tides"
+    cardSubtitle: "Salem Harbor · NOAA Station 8442645"
+
+  # Labels on the Water Safety card. The readings themselves come from the MA DPH
+  # dashboard automatically and are not edited here.
+  water:
+    cardTitle: "Water Safety"
+    cardSubtitle: "Osgood Beach · Salem · MA Dept. of Public Health"
+    statusOpen: "Open"
+    statusClosed: "Closed"
+    statusUnknown: "Status unconfirmed"
+    latestLabel: "Most recent test"
+    historyLabel: "Recent tests"
+    contaminant: "Enterococci"
+    unavailable: "Water-quality data is unavailable right now. See the official dashboard below."
+    noReadings: "No recent readings for this beach."
+    dashboardLinkText: "View the official MA DPH dashboard"
+
+  # The "Forms & Documents" section header. The list of documents themselves
+  # lives in the documents.yaml file next to this one.
+  forms:
+    heading: "Forms & Documents"
+    intro: "Download the forms and documents neighbors need most. More will be added over time."
+
+  # The footer at the very bottom of the page.
+  footer:
+    orgName: "Osgood-Park Neighborhood Association"
+    menuTitle: "Menu"
+    links:
+      - label: "Tides & Water"
+        href: "#tides"
+      - label: "Forms"
+        href: "#forms"

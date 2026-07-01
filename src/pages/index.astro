@@ -1,49 +1,70 @@
 ---
+import { getEntry } from "astro:content";
 import Layout from "@/layouts/Layout.astro";
 import { Hero157 } from "@/components/hero157";
 import { About8 } from "@/components/about8";
 import { Footer60 } from "@/components/footer60";
 import TideWaterSection from "@/components/sections/TideWaterSection";
 import DocumentsSection from "@/components/sections/DocumentsSection.astro";
+
+const home = await getEntry("page", "home");
+if (!home) throw new Error("Missing content entry: src/content/home.yaml");
+const { data } = home;
 ---
 
-<Layout>
+<Layout title={data.meta.title} description={data.meta.description}>
   <main>
-    <Hero157 />
+    <Hero157
+      eyebrow={data.hero.eyebrow}
+      heading={data.hero.heading}
+      body={data.hero.body}
+    />
 
-    <About8 />
+    <About8
+      heading={data.about.heading}
+      body={data.about.body}
+      image={data.about.image}
+    />
 
     <section id="tides" class="border-t border-border py-24 md:py-32">
       <div class="container mx-auto px-6">
         <div class="mb-12 max-w-2xl">
           <h2 class="text-3xl font-semibold tracking-tight md:text-4xl">
-            Tides &amp; Water Safety
+            {data.tides.heading}
           </h2>
           <p class="mt-4 text-muted-foreground md:text-lg">
-            Today's tide schedule for Salem Harbor and the latest water-safety
-            test for Osgood beach.
+            {data.tides.intro}
           </p>
         </div>
-        <TideWaterSection client:load />
+        <TideWaterSection
+          client:load
+          content={{
+            tides: {
+              cardTitle: data.tides.cardTitle,
+              cardSubtitle: data.tides.cardSubtitle,
+            },
+            water: data.water,
+          }}
+        />
       </div>
     </section>
 
-    <DocumentsSection />
+    <DocumentsSection heading={data.forms.heading} intro={data.forms.intro} />
 
     <Footer60
       logo={{
         url: "#",
         src: "",
         alt: "",
-        title: "Osgood-Park Neighborhood Association",
+        title: data.footer.orgName,
       }}
       sections={[
         {
-          title: "Menu",
-          links: [
-            { name: "Tides & Water", href: "#tides" },
-            { name: "Forms", href: "#forms" },
-          ],
+          title: data.footer.menuTitle,
+          links: data.footer.links.map((link) => ({
+            name: link.label,
+            href: link.href,
+          })),
         },
       ]}
       socialLinks={[]}
