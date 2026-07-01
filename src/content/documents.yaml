@@ -1,0 +1,36 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Forms & documents
+#
+# Each item below is one downloadable file shown in the "Forms & Documents"
+# section. To add a document:
+#   1. Put the PDF in the  public/forms/  folder.
+#   2. Copy one whole block below (from "- id:" down to "fileType:").
+#   3. Give it a new, unique id (lowercase words joined by hyphens), then change
+#      the title, description, href (the file name), and fileType.
+#
+# The href is the path to the file, starting with /forms/.
+# ─────────────────────────────────────────────────────────────────────────────
+
+- id: membership-form
+  title: "Membership Form"
+  description: "Join the Osgood-Park Neighborhood Association or renew your membership for the year."
+  href: "/forms/membership-form.pdf"
+  fileType: "PDF"
+
+- id: event-permit-request
+  title: "Event Permit Request"
+  description: "Request approval to host a gathering, cleanup, or event at the park."
+  href: "/forms/event-permit-request.pdf"
+  fileType: "PDF"
+
+- id: meeting-minutes
+  title: "Meeting Minutes"
+  description: "Minutes and notes from recent neighborhood association meetings."
+  href: "/forms/meeting-minutes.pdf"
+  fileType: "PDF"
+
+- id: bylaws
+  title: "Association Bylaws"
+  description: "The association's current bylaws and governing documents."
+  href: "/forms/bylaws.pdf"
+  fileType: "PDF"

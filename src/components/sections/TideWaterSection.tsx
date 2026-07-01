@@ -55,6 +55,30 @@ interface WaterReading {
 
 type Load<T> = { state: "loading" } | { state: "ready"; data: T } | { state: "error" };
 
+// Editable copy for these cards. Passed in from the page so the wording lives in
+// src/content/home.yaml (see the `tides` and `water` blocks) rather than here.
+interface TideContent {
+  cardTitle: string;
+  cardSubtitle: string;
+}
+interface WaterContent {
+  cardTitle: string;
+  cardSubtitle: string;
+  statusOpen: string;
+  statusClosed: string;
+  statusUnknown: string;
+  latestLabel: string;
+  historyLabel: string;
+  contaminant: string;
+  unavailable: string;
+  noReadings: string;
+  dashboardLinkText: string;
+}
+export interface TideWaterContent {
+  tides: TideContent;
+  water: WaterContent;
+}
+
 const NOAA_STATION_URL =
   "https://tidesandcurrents.noaa.gov/stationhome.html?id=8442645";
 
@@ -104,28 +128,27 @@ function formatSampledDate(iso: string): string {
   return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
 }
 
-const STATUS: Record<
+// Badge color + icon per status (styling stays in code; the label text comes
+// from content — see statusLabel() below).
+const STATUS_STYLE: Record<
   WaterReading["status"],
-  { label: string; badge: string; icon: typeof CircleCheck }
+  { badge: string; icon: typeof CircleCheck }
 > = {
   open: {
-    label: "Open",
     badge: "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400",
     icon: CircleCheck,
   },
   closed: {
-    label: "Closed",
     badge: "bg-red-500/15 text-red-700 dark:text-red-400",
     icon: TriangleAlert,
   },
   unknown: {
-    label: "Status unconfirmed",
     badge: "bg-muted text-muted-foreground",
     icon: Droplets,
   },
 };
 
-function TideCard() {
+function TideCard({ content }: { content: TideContent }) {
   const [load, setLoad] = useState<Load<TidesResponse>>({ state: "loading" });
 
   useEffect(() => {
@@ -148,8 +171,8 @@ function TideCard() {
           <Waves className="size-5 text-foreground" />
         </span>
         <div>
-          <CardTitle>Today's Tides</CardTitle>
-          <CardDescription>Salem Harbor · NOAA Station 8442645</CardDescription>
+          <CardTitle>{content.cardTitle}</CardTitle>
+          <CardDescription>{content.cardSubtitle}</CardDescription>
         </div>
       </CardHeader>
       <CardContent>
@@ -245,7 +268,7 @@ function TideCard() {
   );
 }
 
-function WaterCard() {
+function WaterCard({ content }: { content: WaterContent }) {
   const [load, setLoad] = useState<Load<WaterReading>>({ state: "loading" });
 
   useEffect(() => {
@@ -262,7 +285,13 @@ function WaterCard() {
   }, []);
 
   const reading = load.state === "ready" ? load.data : null;
-  const status = STATUS[reading?.status ?? "unknown"];
+  const currentStatus = reading?.status ?? "unknown";
+  const status = STATUS_STYLE[currentStatus];
+  const statusLabel = {
+    open: content.statusOpen,
+    closed: content.statusClosed,
+    unknown: content.statusUnknown,
+  }[currentStatus];
   const StatusIcon = status.icon;
   const dashboardUrl =
     reading?.dashboardUrl ??
@@ -275,8 +304,8 @@ function WaterCard() {
           <Droplets className="size-5 text-foreground" />
         </span>
         <div>
-          <CardTitle>Water Safety</CardTitle>
-          <CardDescription>Osgood Beach · Salem · MA Dept. of Public Health</CardDescription>
+          <CardTitle>{content.cardTitle}</CardTitle>
+          <CardDescription>{content.cardSubtitle}</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="flex-1">
@@ -288,9 +317,7 @@ function WaterCard() {
         )}
 
         {load.state === "error" && (
-          <p className="text-sm text-muted-foreground">
-            Water-quality data is unavailable right now. See the official dashboard below.
-          </p>
+          <p className="text-sm text-muted-foreground">{content.unavailable}</p>
         )}
 
         {load.state === "ready" && reading && (
@@ -298,7 +325,7 @@ function WaterCard() {
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
               <Badge className={cn("gap-1.5 px-3 py-1 text-sm", status.badge)}>
                 <StatusIcon className="size-4!" />
-                {status.label}
+                {statusLabel}
               </Badge>
               {reading.status === "closed" && reading.closureReason && (
                 <span className="text-sm text-muted-foreground">{reading.closureReason}</span>
@@ -308,7 +335,7 @@ function WaterCard() {
             {reading.latest ? (
               <div>
                 <p className="text-xs tracking-wide text-muted-foreground uppercase">
-                  Most recent test
+                  {content.latestLabel}
                 </p>
                 <div className="mt-1 flex items-baseline gap-2">
                   <span className="text-3xl font-semibold tabular-nums">
@@ -317,22 +344,20 @@ function WaterCard() {
                   <span className="text-sm text-muted-foreground">{reading.unit}</span>
                 </div>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {formatSampledDate(reading.latest.date)} · Enterococci ·{" "}
+                  {formatSampledDate(reading.latest.date)} · {content.contaminant} ·{" "}
                   {reading.withinStandard
                     ? `within the ${reading.threshold} ${reading.unit} limit`
                     : `above the ${reading.threshold} ${reading.unit} limit`}
                 </p>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                No recent readings for this beach.
-              </p>
+              <p className="text-sm text-muted-foreground">{content.noReadings}</p>
             )}
 
             {reading.history.length > 1 && (
               <div>
                 <p className="mb-1 text-xs tracking-wide text-muted-foreground uppercase">
-                  Recent tests
+                  {content.historyLabel}
                 </p>
                 <ul className="divide-y divide-border">
                   {reading.history.map((s) => (
@@ -359,7 +384,7 @@ function WaterCard() {
           rel="noreferrer"
           className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
         >
-          View the official MA DPH dashboard
+          {content.dashboardLinkText}
           <ExternalLink className="size-3.5" />
         </a>
       </CardFooter>
@@ -367,11 +392,11 @@ function WaterCard() {
   );
 }
 
-export function TideWaterSection() {
+export function TideWaterSection({ content }: { content: TideWaterContent }) {
   return (
     <div className="grid gap-6 md:grid-cols-2">
-      <TideCard />
-      <WaterCard />
+      <TideCard content={content.tides} />
+      <WaterCard content={content.water} />
     </div>
   );
 }

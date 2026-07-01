@@ -1,22 +1,29 @@
 ---
-import { documents } from "@/data/documents";
+import { getCollection } from "astro:content";
+
+interface Props {
+  heading: string;
+  intro: string;
+}
+
+const { heading, intro } = Astro.props;
+const documents = await getCollection("documents");
 ---
 
 <section id="forms" class="border-t border-border py-24 md:py-32">
   <div class="container mx-auto px-6">
     <div class="mb-12 max-w-2xl">
       <h2 class="text-3xl font-semibold tracking-tight md:text-4xl">
-        Forms &amp; Documents
+        {heading}
       </h2>
       <p class="mt-4 text-muted-foreground md:text-lg">
-        Download the forms and documents neighbors need most. More will be added
-        over time.
+        {intro}
       </p>
     </div>
 
     <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
       {
-        documents.map((doc) => (
+        documents.map(({ data: doc }) => (
           <a
             href={doc.href}
             download
