@@ -1,0 +1,26 @@
+#:schema https://conductor.build/schemas/settings.repo.schema.json
+
+# Shared Conductor settings for Osgood Park (Astro 7 + pnpm, deployed on Vercel).
+# Personal overrides go in .conductor/settings.local.toml (gitignored).
+
+[scripts]
+# Install dependencies when a workspace is created. pnpm is pinned via the
+# "packageManager" field in package.json, so the correct pnpm version is used.
+setup = "pnpm install"
+
+# Run button: start the Astro dev server on this workspace's assigned port.
+# Astro 7 auto-daemonizes when it detects an agent environment (via am-i-vibing),
+# which would detach the server and exit immediately, leaving it unmanaged.
+# ASTRO_DEV_BACKGROUND=1 forces the foreground code path so Conductor can track
+# and stop the server. Each workspace gets its own $CONDUCTOR_PORT, so multiple
+# dev servers can run at once.
+run = "ASTRO_DEV_BACKGROUND=1 pnpm astro dev --port $CONDUCTOR_PORT"
+
+# Multiple workspaces can run simultaneously: the site is static, uses no shared
+# database/Docker/fixed port, and each server binds its own $CONDUCTOR_PORT.
+run_mode = "concurrent"
+
+# On archive, stop any lingering background dev daemon an agent may have started
+# with `astro dev --background`. `|| true` keeps archive from failing when none
+# is running.
+archive = "pnpm astro dev stop || true"
